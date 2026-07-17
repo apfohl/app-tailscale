@@ -133,3 +133,8 @@ fi
 if bashio::config.equals 'share_homeassistant' 'disabled'; then
     rm /etc/s6-overlay/s6-rc.d/user/contents.d/share-homeassistant
 fi
+
+# Disable share-services service when no services are configured
+if ! bashio::config 'services' | jq -e '. | length > 0' > /dev/null; then
+    rm -f /etc/s6-overlay/s6-rc.d/user/contents.d/share-services
+fi
