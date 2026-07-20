@@ -322,15 +322,19 @@ Port 443 is used by default.
 
 This option allows you to advertise other local services running on this device
 as [Tailscale Services][tailscale_info_services]. Each service needs a name, a
-local target address, a protocol, and a port to expose it on. The `svc:` prefix
-is added automatically by the app; do not include it in the configuration.
+local target address, a protocol, and a port to expose it on. The service name
+must include the `svc:` prefix (for example, `svc:audiobookshelf`), similar to
+how the `tags` option requires the `tag:` prefix.
 
-You can use this to expose apps running on your Home Assistant instance, such as
-an audiobookshelf add-on, to your tailnet using a stable MagicDNS name.
+**Note:** For Tailscale Services to work, this device must use tags. See the
+`tags` option for more information.
+
+You can use this to expose an app running on your Home Assistant instance, such
+as an audiobookshelf app, to your tailnet using a stable MagicDNS name.
 
 ```yaml
 services:
-  - name: audiobookshelf
+  - name: svc:audiobookshelf
     target: http://127.0.0.1:13378
     protocol: http
     port: 80
@@ -354,8 +358,9 @@ tls-terminated-tcp protocols, for example `http://127.0.0.1:13378`. The `path`
 option is optional and defaults to `/`.
 
 Before a service can accept traffic, you must define the Service in the Tailscale
-admin console and approve this device as a Service host. More information:
-[Services][tailscale_info_services].
+admin console and approve this device as a Service host.
+
+More information: [Services][tailscale_info_services].
 
 This option is disabled by default.
 
