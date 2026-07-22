@@ -42,7 +42,7 @@ if ! current_config=$(/opt/tailscale serve get-config --all 2>/dev/null); then
 fi
 
 # Build a list of currently configured service names
-readarray -t current_names < <(bashio::jq "${current_config}" '.services | keys[]' || true)
+readarray -t current_names < <(bashio::jq "${current_config}" '.services // {} | keys[]' || true)
 
 # Remove services that are no longer configured in this app
 for service_name in "${current_names[@]}"; do
@@ -70,7 +70,10 @@ for service in "${configured_services[@]}"; do
     fi
 
     if ! "${https_checked}" && [[ "${protocol}" = @(https|tls-terminated-tcp) ]]; then
-        if [[ "$(bashio::jq "$(/opt/tailscale status --self=true --peers=false --json)" '.Self.CapMap | has("https")')" != "true" ]]; then
+        if ! tailscale_status=$(/opt/tailscale status --self=true --peers=false --json 2>/dev/null); then
+            bashio::exit.nok "Unable to determine Tailscale HTTPS support"
+        fi
+        if [[ "$(bashio::jq "${tailscale_status}" '.Self.CapMap | has("https")')" != "true" ]]; then
             bashio::exit.nok "Tailscale's HTTPS support is disabled"
         fi
         https_checked=true
